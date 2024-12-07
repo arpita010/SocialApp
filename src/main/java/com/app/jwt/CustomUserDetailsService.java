@@ -1,7 +1,6 @@
 package com.app.jwt;
 
 import com.app.user.UserRepo;
-import com.app.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
