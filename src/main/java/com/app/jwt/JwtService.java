@@ -1,8 +1,10 @@
 package com.app.jwt;
 
+import com.app.blackListedToken.BlackListedTokenService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -13,11 +15,14 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Component
-public class JwtHelper {
+@RequiredArgsConstructor
+public class JwtService {
   public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60; // Token will expire after 5 hours
 
   @Value("${jwt.secret.key}")
   private String secret;
+
+  private final BlackListedTokenService blackListedTokenService;
 
   public String getUsernameFromToken(String token) {
     return getClaimFromToken(token, Claims::getSubject);
@@ -59,6 +64,8 @@ public class JwtHelper {
 
   public Boolean validateToken(String token, UserDetails userDetails) {
     final String username = getUsernameFromToken(token);
-    return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    return (username.equals(userDetails.getUsername())
+        && !isTokenExpired(token)
+        && !blackListedTokenService.isBlackListed(token));
   }
 }

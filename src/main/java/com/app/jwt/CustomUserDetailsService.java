@@ -1,5 +1,6 @@
 package com.app.jwt;
 
+import com.app.user.UserRepo;
 import com.app.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,10 +11,12 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
-  private final UserService userService;
+  private final UserRepo userRepo;
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    return userService.findUserByUserName(username);
+    return userRepo
+        .findByUsername(username)
+        .orElseThrow(() -> new UsernameNotFoundException("User Details Not Found"));
   }
 }

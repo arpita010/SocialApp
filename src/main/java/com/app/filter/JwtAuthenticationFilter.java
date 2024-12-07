@@ -1,7 +1,7 @@
 package com.app.filter;
 
 import com.app.exceptions.AuthException;
-import com.app.jwt.JwtHelper;
+import com.app.jwt.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,7 +22,7 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-  private final JwtHelper jwtHelper;
+  private final JwtService jwtService;
 
   private final UserDetailsService userDetailsService;
 
@@ -41,10 +41,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     if (!method.equals("OPTIONS")) {
       checkIfAuthTokenIsValid(authHeader);
       token = authHeader.substring(7);
-      username = jwtHelper.getUsernameFromToken(token);
+      username = jwtService.getUsernameFromToken(token);
       if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-        Boolean validateToken = jwtHelper.validateToken(token, userDetails);
+        Boolean validateToken = jwtService.validateToken(token, userDetails);
         if (validateToken) {
           UsernamePasswordAuthenticationToken authentication =
               new UsernamePasswordAuthenticationToken(
@@ -65,7 +65,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private void checkIfAuthTokenIsValid(String authHeader) {
     if (authHeader != null && authHeader.startsWith("Bearer")) {
       String token = authHeader.substring(7);
-      String username = jwtHelper.getUsernameFromToken(token);
+      String username = jwtService.getUsernameFromToken(token);
     } else {
       log.info("Invalid Auth Token");
       throw new RuntimeException("Invalid Auth Token");

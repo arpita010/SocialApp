@@ -1,6 +1,6 @@
 package com.app.advice;
 
-import com.app.commons.ApiStatus;
+import com.app.commons.Status;
 import com.app.commons.ErrorResponse;
 import com.app.exceptions.AuthException;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ public class MainExceptionHandler {
   public ErrorResponse handleAuthException(AuthException e) {
     log.error("[ERR] Auth Exception : {}", e.getMessage());
     ErrorResponse response = new ErrorResponse();
-    response.setStatus(ApiStatus.FAILED);
+    response.setStatus(Status.FAILED);
     response.setMessage(e.getMessage());
     return response;
   }
@@ -30,7 +30,7 @@ public class MainExceptionHandler {
   public ErrorResponse handleAllOtherExceptions(Exception e) {
     log.error("[ERR] Exception : {}", e.getMessage());
     ErrorResponse response = new ErrorResponse();
-    response.setStatus(ApiStatus.FAILED);
+    response.setStatus(Status.FAILED);
     response.setMessage(e.getMessage());
     return response;
   }

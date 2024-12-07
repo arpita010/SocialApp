@@ -1,12 +1,12 @@
 package com.app.commons;
 
-public enum ApiStatus {
+public enum Status {
   SUCCESS("SUCCESS"),
   FAILED("FAILED");
 
   private String status;
 
-  ApiStatus(String status) {
+  Status(String status) {
     this.status = status;
   }
 

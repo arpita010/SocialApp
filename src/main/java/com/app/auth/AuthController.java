@@ -3,13 +3,16 @@ package com.app.auth;
 import com.app.auth.request.SigninRequest;
 import com.app.auth.request.SignupRequest;
 import com.app.auth.response.SigninResponse;
-import com.app.jwt.JwtHelper;
+import com.app.blackListedToken.BlackListedTokenService;
+import com.app.commons.Status;
+import com.app.commons.SuperResponse;
+import com.app.jwt.JwtService;
 import com.app.user.User;
 import com.app.user.UserService;
 import com.app.user.response.UserResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,13 +29,14 @@ public class AuthController {
   private final UserService userService;
   private final UserDetailsService userDetailsService;
   private final AuthenticationManager manager;
-  private final JwtHelper jwtHelper;
+  private final JwtService jwtService;
+  private final BlackListedTokenService blackListedTokenService;
 
   @PostMapping("/signin")
   public ResponseEntity<SigninResponse> login(@RequestBody SigninRequest request) {
     doAuthenticate(request.getUsername(), request.getPassword());
     UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
-    String token = jwtHelper.generateToken(userDetails);
+    String token = jwtService.generateToken(userDetails);
     SigninResponse response = new SigninResponse(userDetails.getUsername(), token);
     return new ResponseEntity<>(response, HttpStatus.OK);
   }
@@ -57,8 +61,15 @@ public class AuthController {
   @GetMapping("/fetchCurrentUser")
   public UserResponse getCurrentUser(HttpServletRequest request) {
     String authToken = request.getHeader("Authorization").substring(7);
-    String username = jwtHelper.getUsernameFromToken(authToken);
+    String username = jwtService.getUsernameFromToken(authToken);
     User user = userService.findUserByUserName(username);
     return new UserResponse(user);
+  }
+
+  @PostMapping("/signout")
+  public SuperResponse logout(HttpServletRequest request) {
+    String authToken = request.getHeader("Authorization").substring(7);
+    blackListedTokenService.blacklistToken(authToken);
+    return new SuperResponse(Status.SUCCESS);
   }
 }
